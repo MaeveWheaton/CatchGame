@@ -36,10 +36,30 @@ namespace CatchGame
 
         int groundHeight = 50;
 
+        string gameState = "waiting";
+
         public Form1()
         {
             InitializeComponent();
         }
+
+        public void GameInitialize()
+        {
+            titleLabel.Text = "";
+            subTitleLabel.Text = "";
+
+            gameTimer.Enabled = true;
+            gameState = "running";
+            time = 500;
+            score = 0;
+            balls.Clear();
+            ballColours.Clear();
+            ballSpeeds.Clear();
+
+            hero.X = this.Width / 2 - hero.Width / 2;
+            hero.Y = this.Height - groundHeight - hero.Height;
+        }
+
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -50,6 +70,18 @@ namespace CatchGame
                     break;
                 case Keys.Right:
                     rightDown = true;
+                    break;
+                case Keys.Space:
+                    if (gameState == "waiting" || gameState == "over")
+                    {
+                        GameInitialize();
+                    }
+                    break;
+                case Keys.Escape:
+                    if (gameState == "waiting" || gameState == "over")
+                    {
+                        Application.Exit();
+                    }
                     break;
             }
         }
@@ -163,7 +195,7 @@ namespace CatchGame
             if (time == 0)
             {
                 gameTimer.Enabled = false;
-
+                gameState = "over";
             }
 
             Refresh();
@@ -171,34 +203,54 @@ namespace CatchGame
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            //update labels
-            timeLabel.Text = $"Time Left: {time}";
-            scoreLabel.Text = $"Score: {score}";
-
-            //draw ground
-            e.Graphics.FillRectangle(greenBrush, 0, this.Height - groundHeight,
-                this.Width, groundHeight);
-
-            //draw hero
-            e.Graphics.FillRectangle(whiteBrush, hero);
-
-            //draw balls
-            for (int i = 0; i < balls.Count(); i++)
+            if (gameState == "waiting")
             {
-                if (ballColours[i] == "red")
+                timeLabel.Text = "";
+                scoreLabel.Text = "";
+
+                titleLabel.Text = "BALL CATCH";
+                subTitleLabel.Text = "Press Space Bar to Start or Escape to Exit";
+            }
+            else if (gameState == "running")
+            {
+                //update labels
+                timeLabel.Text = $"Time Left: {time}";
+                scoreLabel.Text = $"Score: {score}";
+
+                //draw ground
+                e.Graphics.FillRectangle(greenBrush, 0, this.Height - groundHeight,
+                    this.Width, groundHeight);
+
+                //draw hero
+                e.Graphics.FillRectangle(whiteBrush, hero);
+
+                //draw balls
+                for (int i = 0; i < balls.Count(); i++)
                 {
-                    e.Graphics.FillEllipse(redBrush, balls[i]);
-                }
-                else if (ballColours[i] == "green")
-                {
-                    e.Graphics.FillEllipse(greenBrush, balls[i]);
-                }
-                else if (ballColours[i] == "gold")
-                {
-                    e.Graphics.FillEllipse(goldBrush, balls[i]);
+                    if (ballColours[i] == "red")
+                    {
+                        e.Graphics.FillEllipse(redBrush, balls[i]);
+                    }
+                    else if (ballColours[i] == "green")
+                    {
+                        e.Graphics.FillEllipse(greenBrush, balls[i]);
+                    }
+                    else if (ballColours[i] == "gold")
+                    {
+                        e.Graphics.FillEllipse(goldBrush, balls[i]);
+                    }
                 }
             }
+            else if (gameState == "over")
+            {
+                timeLabel.Text = "";
+                scoreLabel.Text = "";
 
+                titleLabel.Text = "GAME OVER";
+
+                subTitleLabel.Text = $"Your final score was {score}";
+                subTitleLabel.Text += "\nPress Space Bar to Start or Escape to Exit";
+            }
         }
     }
 }
